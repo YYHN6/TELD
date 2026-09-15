@@ -3635,25 +3635,25 @@ self.onmessage = function(e) {
         <tr data-page-node-id="DDmTUHtMMCb546SLfu0YHK"><td data-page-node-id="njlKL2SK5UQWwGacBjYi4T">I</td><td data-page-node-id="xqw04MFFzZhxgbT67qUZt2">下线根数（工序2）</td><td data-page-node-id="74tl2ECpef5PVtPr1lQxOL">设备一次线电缆数量：一次线 + 长度≥270mm + 起/终点端子均包含「一次线可设备端子」列表中的任一型号（模糊匹配，兼容后缀）。</td></tr>
         <tr data-page-node-id="qfbGVJ9EcYAFMX96vtHAOR"><td data-page-node-id="ZAsmcDrlIPTADyiVkUbz83">J</td><td data-page-node-id="Gc2wWrLBMMkcfX8kfA3UWk">工时(s)</td><td data-page-node-id="elQCFtbRHzfqRBRBFMb7FS">= I × 15.2。</td></tr>
         <tr data-page-node-id="Qogkn5xq2qYDc7wHHKcmji"><td data-page-node-id="qk8YJh8BwHBVZP9sreJtNe">K</td><td data-page-node-id="m97CsgV6q0BkOPgTZMfQEF">一次下线、剥线（工序3）</td><td data-page-node-id="aeaLkJVSQPxwEBrWdZIakX">手工一次线电缆数量：判定为一次线但不满足设备条件。</td></tr>
-        <tr data-page-node-id="1HcfvE0JjgzYZ6OdBnWFjM"><td data-page-node-id="EGgdNSB2OCxiyLCdoDnAgU">L</td><td data-page-node-id="LyMOETyECjmFq5FDYxoBoa">压接插针</td><td data-page-node-id="DMTGlOZF1RFJIRMXasZCuM">K 中起/终点端子只要包含配置④ L 列中的任一端子型号即计入（兼容后缀、前缀等）。</td></tr>
-        <tr data-page-node-id="E5tPmDEOE22sXfyiXHMyT0"><td data-page-node-id="6P4QbTchRQRMq9oeg1R3ns">M</td><td data-page-node-id="L4RzqtwcLwjgSA9mYYJuWv">压接针型</td><td data-page-node-id="diWbGgPkElg7JKY1suxCJu">K 中起/终点端子只要包含配置④ M 列中的任一端子型号即计入。</td></tr>
-        <tr data-page-node-id="OUBJ0AH9rYiZFQCmx3n1j4"><td data-page-node-id="IBZiPueYfIrQjSyB4KB1Oz">N</td><td data-page-node-id="lajU4NFdch1UquyFFc3yIR">压接O型</td><td data-page-node-id="wNuuFBCYMq5LzKBjYpzTeP">K 中起/终点端子只要包含配置④ N 列中的任一端子型号即计入。</td></tr>
+        <tr data-page-node-id="1HcfvE0JjgzYZ6OdBnWFjM"><td data-page-node-id="EGgdNSB2OCxiyLCdoDnAgU">L</td><td data-page-node-id="LyMOETyECjmFq5FDYxoBoa">压接插针</td><td data-page-node-id="DMTGlOZF1RFJIRMXasZCuM">K 中起/终点端子只要包含配置④ L 列中的任一端子型号即计入（兼容后缀、前缀等）。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
+        <tr data-page-node-id="E5tPmDEOE22sXfyiXHMyT0"><td data-page-node-id="6P4QbTchRQRMq9oeg1R3ns">M</td><td data-page-node-id="L4RzqtwcLwjgSA9mYYJuWv">压接针型</td><td data-page-node-id="diWbGgPkElg7JKY1suxCJu">K 中起/终点端子只要包含配置④ M 列中的任一端子型号即计入。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
+        <tr data-page-node-id="OUBJ0AH9rYiZFQCmx3n1j4"><td data-page-node-id="IBZiPueYfIrQjSyB4KB1Oz">N</td><td data-page-node-id="lajU4NFdch1UquyFFc3yIR">压接O型</td><td data-page-node-id="wNuuFBCYMq5LzKBjYpzTeP">K 中起/终点端子只要包含配置④ N 列中的任一端子型号即计入。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
         <tr data-page-node-id="iiafEEVlaEazSPZia15fkZ"><td data-page-node-id="Fx6AE8plcg7NjcBXLsX9uk">O</td><td data-page-node-id="BCXEBbs1NZdHzykI3v7Qyk">打穿线号管</td><td data-page-node-id="hcxg6CSaUy4LGhwJApz9Rd">只统计手工一次线（工序3）的 E 列（起始线号）和 H 列（终点线号）中非空值的数量之和；已划入工序1/2（设备一次线）的线号排除。</td></tr>
         <tr data-page-node-id="BYstwFmvhCCXQoo8vMzInA"><td data-page-node-id="PWV5AUsxlcypFJJ1fuBA47">P</td><td data-page-node-id="da0Oqd7WAi37enZznr4uzd">烤热缩管</td><td data-page-node-id="ioUfwaFgTyPVH96MMyBlVj">= K × 2。</td></tr>
         <tr data-page-node-id="X3GTbLadoBBiii2vyXiqlk"><td data-page-node-id="YHC3Ba0agzzT71XaTWIvWS">Q</td><td data-page-node-id="CFl19qlfQr7KiYmRmnS8og">打线圈</td><td data-page-node-id="ZwvjfHJii1ztqNJzEzr4HP">（空，未取值）</td></tr>
         <tr data-page-node-id="PcFef6qZkEONCX2UCypanE"><td data-page-node-id="m9MN7Rd49HGDrV5nYLlRPO">R</td><td data-page-node-id="iznoErG0K65iTgaGqAEjgT">工时(s)（工序3）</td><td data-page-node-id="wclOcZFVBQOL3n95RJgwPQ">= K×5.2 + L×6.4 + M×10.2 + N×8.7 + O×10.8 + P×6.1 + Q×4.5。</td></tr>
         <tr data-page-node-id="yj29yeLVPY0typZfILd1PD"><td data-page-node-id="nOfIPoA87l0GBcqK7U7Hmi">S</td><td data-page-node-id="fgPo5CmskvB57UwvVM4Klk">手工下线（工序4）</td><td data-page-node-id="yZn0HpEpYDVz8kHtksXrAE">二次线中设备干不了的部分：判定为二次线但不满足工序1设备条件。</td></tr>
-        <tr data-page-node-id="ikXTxS9LB1qL8Y4TWUbkvd"><td data-page-node-id="NHoVzhVa1lUGCydKd9r0Ek">T</td><td data-page-node-id="c4HYNqS95VrqSrcAhGgMcz">机器针型</td><td data-page-node-id="yAsnUEL7g4AyHXTrFz4gQi">S 中起/终点端子只要包含配置④ T 列中的任一端子型号即计入。</td></tr>
-        <tr data-page-node-id="mgooRiVgs2B5ObhQNBuy4x"><td data-page-node-id="KpGUu4gMPw7KTkwcL4nBmk">U</td><td data-page-node-id="t1QrrgMlWSeyLCykz0Zfc8">机器O型</td><td data-page-node-id="tg714aAUTXkFG26s5sfTK5">S 中起/终点端子只要包含配置④ U 列中的任一端子型号即计入。</td></tr>
-        <tr data-page-node-id="gF45xh3hliYUN7GafHywPE"><td data-page-node-id="s69jtzlCNpseEadkVinIjK">V</td><td data-page-node-id="Jj3LFBJ0Z3hBd9OdujNAcZ">机器U型</td><td data-page-node-id="PCq9eIJNaew4WmO10zlRQy">S 中起/终点端子只要包含配置④ V 列中的任一端子型号即计入。</td></tr>
+        <tr data-page-node-id="ikXTxS9LB1qL8Y4TWUbkvd"><td data-page-node-id="NHoVzhVa1lUGCydKd9r0Ek">T</td><td data-page-node-id="c4HYNqS95VrqSrcAhGgMcz">机器针型</td><td data-page-node-id="yAsnUEL7g4AyHXTrFz4gQi">S 中起/终点端子只要包含配置④ T 列中的任一端子型号即计入。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
+        <tr data-page-node-id="mgooRiVgs2B5ObhQNBuy4x"><td data-page-node-id="KpGUu4gMPw7KTkwcL4nBmk">U</td><td data-page-node-id="t1QrrgMlWSeyLCykz0Zfc8">机器O型</td><td data-page-node-id="tg714aAUTXkFG26s5sfTK5">S 中起/终点端子只要包含配置④ U 列中的任一端子型号即计入。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
+        <tr data-page-node-id="gF45xh3hliYUN7GafHywPE"><td data-page-node-id="s69jtzlCNpseEadkVinIjK">V</td><td data-page-node-id="Jj3LFBJ0Z3hBd9OdujNAcZ">机器U型</td><td data-page-node-id="PCq9eIJNaew4WmO10zlRQy">S 中起/终点端子只要包含配置④ V 列中的任一端子型号即计入。 前提：该线缆判定为手工（工序3/4）时才计入；设备线（工序1/2）的端子不计入本项。</td></tr>
         <tr data-page-node-id="HfY72yiMqdFiltAI69XFzN"><td data-page-node-id="jSIX7zJND6DRDed23xFtLc">W</td><td data-page-node-id="XvcTOuL9mQXd2UHW8H6Qvj">手工双压</td><td data-page-node-id="poBaD1Tzrx5UqGniEuCQz1">二次线中 D 列（冷压端子起）和 I 列（冷压端子终）里合并单元格的数量，每个合并区算 1。</td></tr>
         <tr data-page-node-id="C6yYURhpGYhLMDJ51HG9GQ"><td data-page-node-id="fFi0hlNZbtMTwnLBXWEnvC">X</td><td data-page-node-id="7DwU04fI6kkaODg5CHpZ2T">手工单压</td><td data-page-node-id="c4wpFQSvB0L7imEDORD7m2">（空，未取值）</td></tr>
         <tr data-page-node-id="qx9A0R1sNSRweCa9avocw7"><td data-page-node-id="WFOuyEUoOalmfw7qClwDUf">Y</td><td data-page-node-id="OCJw9SzCBdnlHI5RNaBGbj">机器金针（含剥线）</td><td data-page-node-id="jAGoMjFChmuePmn2QElxGM">（空，未取值）</td></tr>
         <tr data-page-node-id="Xil5GqLoCU92wNRyar1D8S"><td data-page-node-id="qr6bUjt2pyAlnh4eErS8rA">Z</td><td data-page-node-id="ecHGxfHmr9JZoSIKm07gSD">插簧</td><td data-page-node-id="HdFNTgfTbI97Hp9SFOo4ip">S 中起/终点端子只要包含配置④ Z 列中的任一端子型号即计入。</td></tr>
         <tr data-page-node-id="FkukmrGdk91giJwgu0gHGn"><td data-page-node-id="HmGKAAcg3699HQ49uvtjuk">AA</td><td data-page-node-id="eP9So691vKm8XJTvpDhMM8">热缩管</td><td data-page-node-id="J6kp2mHgP4jA1o3bzxtAr4">（空，未取值）</td></tr>
         <tr data-page-node-id="mx0WaEBxiHWfmg3UMLMrdB"><td data-page-node-id="CH5V4zMX6lNfxEVJzJ7nzp">AB</td><td data-page-node-id="2gaNLm00NBzstJgSzsDkFW">大热缩管</td><td data-page-node-id="7jKb1pFBkdv4hPyCGBO3Yl">二次线中备注或冷压端子（起/终）含「热缩」字样的行数 × 2。</td></tr>
-        <tr data-page-node-id="ubEku0hVPdGgAehiUEwDQd"><td data-page-node-id="8CvgQvlA8Ij9K84JJS8Ajd">AC</td><td data-page-node-id="f6V7zBPQ3XZD0fKVVI4Ahs">穿线号</td><td data-page-node-id="z8iHSG8No756QiaO4nGSaQ">只统计手工二次线（工序4）中 D 列（冷压端子起）非空值的数量；已划入工序1（设备二次线）的端子排除。</td></tr>
-        <tr data-page-node-id="lINlLw3NDS7XFWhLRxuIJG"><td data-page-node-id="IgHjCy0vzlsNQ6Bpeaj576">AD</td><td data-page-node-id="76qTrTf7CoE6RI9TkOPmZI">打印线号管</td><td data-page-node-id="EWvMCgTc57ME8PZIzrGHt1">只统计手工二次线（工序4）中 I 列（冷压端子终）非空值的数量；已划入工序1（设备二次线）的端子排除。</td></tr>
+        <tr data-page-node-id="ubEku0hVPdGgAehiUEwDQd"><td data-page-node-id="8CvgQvlA8Ij9K84JJS8Ajd">AC</td><td data-page-node-id="f6V7zBPQ3XZD0fKVVI4Ahs">穿线号</td><td data-page-node-id="z8iHSG8No756QiaO4nGSaQ">只统计手工二次线（工序4）中起端标识非空的行数：起点线号列（含「线号/起始线号/起点线号」）或冷压端子起列任一有值即计（"/"等占位符不计）；已划入工序1（设备二次线）的排除。</td></tr>
+        <tr data-page-node-id="lINlLw3NDS7XFWhLRxuIJG"><td data-page-node-id="IgHjCy0vzlsNQ6Bpeaj576">AD</td><td data-page-node-id="76qTrTf7CoE6RI9TkOPmZI">打印线号管</td><td data-page-node-id="EWvMCgTc57ME8PZIzrGHt1">只统计手工二次线（工序4）中末端标识非空的行数：终点线号列或冷压端子终列任一有值即计（"/"等占位符不计）；已划入工序1（设备二次线）的排除。</td></tr>
         <tr data-page-node-id="4CFvRZN7f36HmymgJUUS7J"><td data-page-node-id="aTdJB3eScu72rRXU7FZGNl">AE</td><td data-page-node-id="UY9rKASFmBe8jluCJYCpZQ">绿端子</td><td data-page-node-id="iDRMsYRV5RdrYJyGaCJjUT">胶壳型号（B/K列）只要包含配置⑥「绿端子」列表中的任一型号即命中，再统计对应胶壳位号（C/J列）中非空值的数量。</td></tr>
         <tr data-page-node-id="UfFE271shX2EOfZgkiUepL"><td data-page-node-id="yDjhsqUFBmDoU9G72Im4Fp">AF</td><td data-page-node-id="vMJl1dmBZ7h588I1SgYeab">插胶壳</td><td data-page-node-id="8mqsY3bJabJ997KW5YSyPY">胶壳型号（B/K列）只要包含配置⑥「插胶壳」列表中的任一型号即命中，再统计对应胶壳位号（C/J列）中非空值的数量。</td></tr>
         <tr data-page-node-id="qnO1F0MHILIJmDgL9i2Mv8"><td data-page-node-id="mQQFKte6LX6lFxIzSH93fq">AG</td><td data-page-node-id="fB7JxNKiWqqfwzghGCG4F4">其他</td><td data-page-node-id="QiSWl9MXrNvd490aIC4eGB">（空，未取值）</td></tr>
@@ -4152,6 +4152,11 @@ function showToast(msg, dur=2500){
 function cleanCell(v){
   return (v===undefined||v===''||v===null) ? '' : String(v).split(String.fromCharCode(10)).join(' ').split(String.fromCharCode(13)).join(' ').trim();
 }
+// 线号/端子占位符判断：空、"/"、"-"、破折号均视为无值
+function hasWireMark(v){
+  var x = cleanCell(v);
+  return x!=='' && !/^[\\/\-\u2014\u2013\u2012]+$/.test(x);
+}
 
 // 查找表头行：包含「序号」且包含「电缆规格」或「线号」
 function findHeaderRow(data){
@@ -4181,7 +4186,7 @@ function normalizeHeader(h){
   if(h.includes('胶壳型号')) return 'shellModel';
   if(h.includes('胶壳位号')) return 'shellPos';
   if(h.includes('冷压端子')) return 'term';
-  if(h==='线号' || h.includes('起始线号')) return 'startNo';
+  if(h==='线号' || h.includes('起始线号') || h.includes('起点线号')) return 'startNo';
   if(h.includes('终点线号')) return 'endNo';
   if(h.includes('电缆规格')) return 'spec';
   if(h.includes('电缆长度')) return 'length';
@@ -4483,7 +4488,11 @@ function buildDataRows(){
     const cls = classifyLine(l, CONFIG);
     matMap[mat].counts[cls.process-1]++;
     const tc = classifyTerminals(l, CONFIG.cfg4);
-    for(const k in tc) matMap[mat].termCounts[k] += tc[k];
+    // 端子归属跟随线缆施工方式（2026-09-15）：线缆判为手工(工序3/4)时端子按④工序捆绑计入；
+    // 线缆判为设备(工序1/2)时不把端子计入 L/M/N/T/U/V（这6项是手工项，设备可干型号与手工型号可能重复）。
+    // Z 插簧规则保持不变，仍按原逻辑统计。
+    const isManualLine = (cls.process===3 || cls.process===4);
+    for(const k in tc){ if(k==='Z' || isManualLine) matMap[mat].termCounts[k] += tc[k]; }
     const sc = classifyShells(l, CONFIG.cfg6);
     for(const k in sc) matMap[mat].shellCounts[k] += sc[k];
     // 工序5 配对双绞统计：备注写“与X号双绞”的行数，最后按 mat 除以 2 取整
@@ -4493,15 +4502,15 @@ function buildDataRows(){
     }
     // 工序3 打穿线号管 O：只统计手工一次线（工序3）的起始/终点线号非空数量；已划入工序1/2（设备）的不计入
     if(cls.process===3){
-      if(l.startNo) matMap[mat].oWireNumEnds++;
-      if(l.endNo)   matMap[mat].oWireNumEnds++;
+      if(hasWireMark(l.startNo)) matMap[mat].oWireNumEnds++;
+      if(hasWireMark(l.endNo))   matMap[mat].oWireNumEnds++;
     }
     // 工序4 大热缩管 AB：二次线且备注或冷压端子（起/终）含"热缩"字样的行数
     if(cls.type==='二次线' && /热缩/.test([l.remark, l.termStart, l.termEnd].join(' '))) matMap[mat].abHeatShrink++;
-    // 工序4 穿线号/打印线号管 AC/AD：只统计手工二次线（工序4）的端子非空数量；已划入工序1（设备）的不计入
+    // 工序4 穿线号/打印线号管 AC/AD：兼容多种格式——起端=起点线号列或冷压端子起列任一有值；末端=终点线号列或冷压端子终列任一有值（"/"占位不计）
     if(cls.process===4){
-      if(l.termStart) matMap[mat].acTermStart++;
-      if(l.termEnd)   matMap[mat].adTermEnd++;
+      if(hasWireMark(l.startNo) || hasWireMark(l.termStart)) matMap[mat].acTermStart++;
+      if(hasWireMark(l.endNo)   || hasWireMark(l.termEnd))   matMap[mat].adTermEnd++;
     }
     // 工序4 W 手工双压：冷压端子起/终点列中合并单元格的数量（每个合并区算1，限二次线）
     if(cls.type==='二次线'){
@@ -4540,8 +4549,8 @@ function buildDataRows(){
     arr[22] = m.wMergedTerms ||'';       // W 手工双压（合并单元格端子数）
     arr[25] = m.termCounts.Z ||'';       // Z 插簧
     arr[27] = (m.abHeatShrink*2) ||'';   // AB 大热缩管（二次线含"热缩"行数 × 2）
-    arr[28] = m.acTermStart ||'';        // AC 穿线号（二次线 termStart 非空数）
-    arr[29] = m.adTermEnd ||'';          // AD 打印线号管（二次线 termEnd 非空数）
+    arr[28] = m.acTermStart ||'';        // AC 穿线号（工序4 起端标识非空行数：起点线号或冷压端子起，"/"不计）
+    arr[29] = m.adTermEnd ||'';          // AD 打印线号管（工序4 末端标识非空行数：终点线号或冷压端子终，"/"不计）
     arr[30] = m.shellCounts.AE ||'';     // AE 绿端子（胶壳型号命中绿端子列表后，对应胶壳位号非空数）
     arr[31] = m.shellCounts.AF ||'';     // AF 插胶壳（胶壳型号命中插胶壳列表后，对应胶壳位号非空数）
     arr[34] = ((m.twistDirect || 0) + Math.round((m.twistPairRows || 0)/2)) || ''; // AI 工序5 双绞数量
