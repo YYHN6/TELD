@@ -1632,7 +1632,8 @@ th{
 
         <div class="tool-tab" data-target="finishedPanel" data-page="finished"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 10h18"/><path d="M9.5 10v9.5"/></svg></span><span>完工未领料明细</span></div>
 
-        <div class="tool-tab" data-target="historyPanel" data-page="history" data-page-node-id="hstPnl001"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7.2v5l3.6 1.9"/></svg></span><span>操作记录</span></div>
+                <div class="tool-tab" data-target="wmsPanel" data-page="wms"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M3 12l9 4 9-4"/></svg></span><span>WMS库存汇总</span></div>
+<div class="tool-tab" data-target="historyPanel" data-page="history" data-page-node-id="hstPnl001"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7.2v5l3.6 1.9"/></svg></span><span>操作记录</span></div>
 
         <div class="tool-tab" data-target="usersPanel" data-page="users" style="display:none"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20.5v-1.4a4 4 0 0 0-4-4H6.5a4 4 0 0 0-4 4v1.4"/><circle cx="9.2" cy="7.2" r="3.4"/><path d="M21.5 20.5v-1.4a4 4 0 0 0-3-3.9"/><path d="M15.6 3.8a4 4 0 0 1 0 7.6"/></svg></span><span>用户管理</span></div>
 
@@ -6006,7 +6007,225 @@ window.addEventListener('DOMContentLoaded', ()=>{
 #bomCheckPanel .bomc-tag-band      { background: #eaf1fb; color: #1e3a5f; }
 
     </style>
-    <div id="bomCheckPanel" class="tool-panel">
+    
+  <div id="wmsPanel" class="tool-panel">
+  <style id="wms-style">
+  #wmsPanel { background:#f5f7fa; min-height:100%; }
+  #wmsPanel .wms-container { max-width:980px; margin:0 auto; padding:28px 24px; }
+  #wmsPanel h1 { font-size:20px; font-weight:500; margin-bottom:6px; color:#1f2d3d; }
+  #wmsPanel .wms-subtitle { color:#6b7685; font-size:13px; margin-bottom:24px; }
+  #wmsPanel .wms-upload-area { border:2px dashed #c0c8d8; border-radius:12px; background:#fff; padding:46px 24px; text-align:center; cursor:pointer; transition:border-color .2s, background .2s; }
+  #wmsPanel .wms-upload-area:hover, #wmsPanel .wms-upload-area.wms-dragover { border-color:#00a0c8; background:#eaf6fb; }
+  #wmsPanel .wms-upload-icon { font-size:36px; margin-bottom:12px; }
+  #wmsPanel .wms-upload-text { font-size:15px; font-weight:500; margin-bottom:6px; color:#1f2d3d; }
+  #wmsPanel .wms-upload-hint { font-size:12px; color:#98a2b3; }
+  #wmsPanel #wms-fileInput { display:none; }
+  #wmsPanel .wms-status-bar { margin-top:16px; padding:10px 16px; border-radius:8px; font-size:13px; display:none; }
+  #wmsPanel .wms-status-bar.wms-processing { background:#e6f7fb; color:#0088b0; display:block; }
+  #wmsPanel .wms-status-bar.wms-success { background:#e6f4ea; color:#1e7e34; display:block; }
+  #wmsPanel .wms-status-bar.wms-error { background:#fdecea; color:#c62828; display:block; }
+  #wmsPanel .wms-result-section { display:none; margin-top:24px; }
+  #wmsPanel .wms-result-section.wms-show { display:block; }
+  #wmsPanel .wms-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+  #wmsPanel .wms-stat-card { background:#fff; border-radius:8px; padding:14px 16px; border:1px solid #e8eaf0; }
+  #wmsPanel .wms-stat-label { font-size:12px; color:#98a2b3; margin-bottom:4px; }
+  #wmsPanel .wms-stat-value { font-size:22px; font-weight:500; color:#1f2d3d; }
+  #wmsPanel .wms-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  #wmsPanel .wms-toolbar-left { font-size:13px; color:#555; }
+  #wmsPanel .wms-btn-download { background:#00a0c8; color:#fff; border:none; border-radius:6px; padding:8px 20px; font-size:13px; cursor:pointer; font-weight:500; }
+  #wmsPanel .wms-btn-download:hover { background:#008fb8; }
+  #wmsPanel .wms-table-wrap { overflow-x:auto; border-radius:10px; border:1px solid #e8eaf0; background:#fff; }
+  #wmsPanel table { width:100%; border-collapse:collapse; font-size:13px; }
+  #wmsPanel thead th { background:#0090c0; color:#fff; padding:10px 12px; text-align:left; font-weight:500; white-space:nowrap; }
+  #wmsPanel tbody tr:nth-child(even) { background:#f8f9fc; }
+  #wmsPanel tbody td { padding:8px 12px; border-bottom:1px solid #f0f0f0; vertical-align:top; }
+  #wmsPanel tbody td:nth-child(3) { text-align:right; white-space:nowrap; }
+  #wmsPanel tbody td:nth-child(4) { color:#555; word-break:break-all; max-width:360px; }
+  #wmsPanel .wms-page-info { font-size:12px; color:#98a2b3; margin-top:8px; text-align:right; }
+  #wmsPanel .wms-reset-btn { background:none; border:1px solid #c0c8d8; border-radius:6px; padding:7px 16px; font-size:13px; cursor:pointer; color:#555; margin-right:8px; }
+  #wmsPanel .wms-reset-btn:hover { border-color:#00a0c8; color:#00a0c8; }
+  </style>
+
+    <div class="wms-container">
+      <h1>WMS 库存汇总工具</h1>
+      <p class="wms-subtitle">上传WMS导出的xlsx文件，自动按物料编号汇总货位数量分布 · 数据完全在本地处理，不会上传到任何服务器</p>
+
+      <div class="wms-upload-area" id="wms-uploadArea">
+        <div class="wms-upload-icon">📂</div>
+        <div class="wms-upload-text">点击选择文件，或将xlsx文件拖拽到此处</div>
+        <div class="wms-upload-hint">支持WMS导出的 .xlsx 格式文件</div>
+        <input type="file" id="wms-fileInput" accept=".xlsx,.xls">
+      </div>
+
+      <div class="wms-status-bar" id="wms-statusBar"></div>
+
+      <div class="wms-result-section" id="wms-resultSection">
+        <div class="wms-stats">
+          <div class="wms-stat-card"><div class="wms-stat-label">原始记录数</div><div class="wms-stat-value" id="wms-statRaw">-</div></div>
+          <div class="wms-stat-card"><div class="wms-stat-label">汇总物料数</div><div class="wms-stat-value" id="wms-statMaterial">-</div></div>
+          <div class="wms-stat-card"><div class="wms-stat-label">处理用时</div><div class="wms-stat-value" id="wms-statTime">-</div></div>
+        </div>
+        <div class="wms-toolbar">
+          <div class="wms-toolbar-left" id="wms-tableInfo"></div>
+          <div>
+            <button class="wms-reset-btn" id="wms-resetBtn" type="button">重新上传</button>
+            <button class="wms-btn-download" id="wms-downloadBtn" type="button">↓ 下载汇总结果.xlsx</button>
+          </div>
+        </div>
+        <div class="wms-table-wrap">
+          <table>
+            <thead><tr><th style="width:130px">物料编号</th><th style="width:200px">规格型号</th><th style="width:90px">总数量</th><th>货位数量分布</th></tr></thead>
+            <tbody id="wms-tableBody"></tbody>
+          </table>
+        </div>
+        <div class="wms-page-info" id="wms-pageInfo"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+  (function(){
+    var XLSX = window.XLSX;
+    var summaryData = [];
+    var PAGE_SIZE = 100;
+    var currentPage = 0;
+    function $(id){ return document.getElementById(id); }
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    var uploadArea, fileInput;
+
+    function init(){
+      uploadArea = $('wms-uploadArea');
+      fileInput = $('wms-fileInput');
+      if(!uploadArea || !fileInput) return;
+      uploadArea.addEventListener('click', function(){ fileInput.click(); });
+      uploadArea.addEventListener('dragover', function(e){ e.preventDefault(); uploadArea.classList.add('wms-dragover'); });
+      uploadArea.addEventListener('dragleave', function(){ uploadArea.classList.remove('wms-dragover'); });
+      uploadArea.addEventListener('drop', function(e){
+        e.preventDefault(); uploadArea.classList.remove('wms-dragover');
+        var f = e.dataTransfer.files[0]; if(f) processFile(f);
+      });
+      fileInput.addEventListener('change', function(e){ if(e.target.files[0]) processFile(e.target.files[0]); });
+      $('wms-resetBtn').addEventListener('click', resetTool);
+      $('wms-downloadBtn').addEventListener('click', downloadResult);
+    }
+
+    function setStatus(msg, type){
+      var bar = $('wms-statusBar');
+      bar.textContent = msg;
+      bar.className = 'wms-status-bar ' + type;
+    }
+
+    function processFile(file){
+      setStatus('正在读取文件：' + file.name + ' ...', 'wms-processing');
+      var t0 = Date.now();
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try {
+          var wb = XLSX.read(e.target.result, { type:'array' });
+          var ws = wb.Sheets[wb.SheetNames[0]];
+          var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+          if(rows.length < 2){ setStatus('文件内容为空或格式不对', 'wms-error'); return; }
+          var headers = rows[0].map(function(h){ return String(h).trim(); });
+          function findCol(){
+            for(var a=0;a<arguments.length;a++){
+              var n=arguments[a];
+              var i=headers.findIndex(function(h){ return h.indexOf(n)>=0; });
+              if(i>=0) return i;
+            }
+            return -1;
+          }
+          var colC = findCol('货位名称','仓位名','仓位名称');
+          var colE = findCol('物料编号','物料编码');
+          var colG = findCol('规格型号','规格');
+          var colL = findCol('数量');
+          if(colC<0 || colE<0 || colL<0){
+            setStatus('未找到必要列（货位名称/物料编号/数量），请确认文件为WMS导出格式', 'wms-error');
+            return;
+          }
+          var map = new Map();
+          var rawCount = 0;
+          for(var i=1;i<rows.length;i++){
+            var row = rows[i];
+            var cangwei = String(row[colC]==null?'':row[colC]).trim();
+            var wuliao = String(row[colE]==null?'':row[colE]).trim();
+            var guige = colG>=0 ? String(row[colG]==null?'':row[colG]).trim() : '';
+            var qtyRaw = row[colL];
+            var qty = parseFloat(qtyRaw) || 0;
+            if(!wuliao || wuliao==='None') continue;
+            rawCount++;
+            var key = wuliao + '|' + guige;
+            if(!map.has(key)) map.set(key, { wuliao:wuliao, guige:guige, totalQty:0, distMap:new Map() });
+            var entry = map.get(key);
+            entry.totalQty += qty;
+            entry.distMap.set(cangwei, (entry.distMap.get(cangwei)||0) + qty);
+          }
+          summaryData = [];
+          map.forEach(function(entry){
+            if(entry.totalQty <= 0) return;
+            var dist = Array.from(entry.distMap.entries())
+              .filter(function(p){ return p[1] > 0; })
+              .sort(function(a,b){ return a[0].localeCompare(b[0]); })
+              .map(function(p){ return p[0] + ':' + p[1].toFixed(2); })
+              .join(';');
+            summaryData.push([entry.wuliao, entry.guige, entry.totalQty, dist]);
+          });
+          var elapsed = ((Date.now()-t0)/1000).toFixed(2);
+          $('wms-statRaw').textContent = rawCount.toLocaleString();
+          $('wms-statMaterial').textContent = summaryData.length.toLocaleString();
+          $('wms-statTime').textContent = elapsed + 's';
+          renderTable();
+          $('wms-resultSection').classList.add('wms-show');
+          setStatus('处理完成！共汇总 ' + summaryData.length + ' 条物料记录（原始 ' + rawCount + ' 行数据）', 'wms-success');
+        } catch(err){
+          setStatus('文件读取失败：' + err.message, 'wms-error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderTable(){
+      var tbody = $('wms-tableBody');
+      var start = currentPage * PAGE_SIZE;
+      var end = Math.min(start + PAGE_SIZE, summaryData.length);
+      var slice = summaryData.slice(start, end);
+      tbody.innerHTML = slice.map(function(r){
+        return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td>' + r[2].toFixed(2) + '</td><td>' + esc(r[3]) + '</td></tr>';
+      }).join('');
+      var totalPages = Math.ceil(summaryData.length / PAGE_SIZE);
+      $('wms-tableInfo').textContent = '显示第 ' + (start+1) + '–' + end + ' 条，共 ' + summaryData.length + ' 条';
+      $('wms-pageInfo').textContent = totalPages > 1
+        ? '第 ' + (currentPage+1) + ' / ' + totalPages + ' 页  （仅预览前' + PAGE_SIZE + '条，下载可获取全部数据）'
+        : '';
+    }
+
+    function downloadResult(){
+      if(!summaryData.length) return;
+      var wsData = [['物料编号','规格型号','总数量','货位数量分布']].concat(summaryData);
+      var ws = XLSX.utils.aoa_to_sheet(wsData);
+      ws['!cols'] = [{wch:20},{wch:35},{wch:12},{wch:60}];
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '库存汇总');
+      XLSX.writeFile(wb, '库存汇总结果.xlsx');
+    }
+
+    function resetTool(){
+      summaryData = []; currentPage = 0;
+      $('wms-resultSection').classList.remove('wms-show');
+      $('wms-statusBar').className = 'wms-status-bar';
+      $('wms-fileInput').value = '';
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+<div id="bomCheckPanel" class="tool-panel">
 <div class="bomc-wrap">
   <div class="bomc-card">
     <div class="bomc-uploads">
@@ -6064,7 +6283,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
 (function(){
   var SB_URL = 'https://lmjtjzwzkpzgryqrfyki.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtanRqend6a3B6Z3J5cXJmeWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNTg4NTMsImV4cCI6MjEwNDczNDg1M30.BcEwPLRwMxrTF0pyqdPrpsvFvSqDAwgFbLte7Qce5FQ';
-  var PAGE_LABELS = { assembly:'装配作业指导书', bom:'BOM 数量差异对比', wiring:'配线表工时核算', finished:'完工未领料明细', history:'操作记录', users:'用户管理', roles:'角色管理', bomcheck:'GS-工艺BOM核对' };
+  var PAGE_LABELS = { assembly:'装配作业指导书', bom:'BOM 数量差异对比', wiring:'配线表工时核算', finished:'完工未领料明细', wms:'WMS库存汇总', history:'操作记录', users:'用户管理', roles:'角色管理', bomcheck:'GS-工艺BOM核对' };
   var session = null;
   var editingUser = null, editingRoleId = null, allRoles = [];
   function rpc(fn, params){
