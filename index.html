@@ -1632,6 +1632,8 @@ th{
 
         <div class="tool-tab" data-target="finishedPanel" data-page="finished"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 10h18"/><path d="M9.5 10v9.5"/></svg></span><span>完工未领料明细</span></div>
 
+        <div class="tool-tab" data-target="nsorderPanel" data-page="nsorder"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg></span><span>月末非标订单库存余额</span></div>
+
                 <div class="tool-tab" data-target="wmsPanel" data-page="wms"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M3 12l9 4 9-4"/></svg></span><span>WMS库存汇总</span></div>
 <div class="tool-tab" data-target="historyPanel" data-page="history" data-page-node-id="hstPnl001"><span class="tab-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7.2v5l3.6 1.9"/></svg></span><span>操作记录</span></div>
 
@@ -5854,6 +5856,302 @@ window.addEventListener('DOMContentLoaded', ()=>{
 })();</script>
 
 </div>
+<style>
+/* ===== 全站功能页自适应宽度（覆盖原固定 max-width，后续规则同特异性胜出）===== */
+.container,#finishedPanel .container,#pwPanel .container,#bomPanel .app{max-width:100%;}
+#bomCheckPanel .bomc-wrap,#wmsPanel .wms-container{max-width:100%;}
+
+/* ===== 月末非标订单库存余额 ===== */
+#nsorderPanel .nso-section{ font-size:15px; font-weight:600; margin:22px 0 12px; display:flex; align-items:center; }
+#nsorderPanel .nso-section::before{ content:''; display:inline-block; width:3px; height:14px; border-radius:2px; background:var(--ui-brand,#00a0c8); margin-right:8px; }
+#nsorderPanel .nso-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:820px){ #nsorderPanel .nso-grid{ grid-template-columns:1fr; } }
+#nsorderPanel .nso-up{ border:1.5px dashed #b9d3de; border-radius:10px; background:#fafcff; padding:22px 16px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s; }
+#nsorderPanel .nso-up:hover, #nsorderPanel .nso-up.drag{ border-color:var(--ui-brand,#00a0c8); background:#f0f9fc; }
+#nsorderPanel .nso-up .big{ font-size:14px; margin-bottom:6px; color:#303133; }
+#nsorderPanel .nso-up.loaded .big{ color:#0a7ea4; font-weight:600; }
+#nsorderPanel .nso-up .small{ font-size:12px; color:var(--ui-text-3,#909399); line-height:1.6; word-break:break-all; }
+#nsorderPanel .nso-badge{ display:inline-block; background:#e1f3f8; color:#0a7ea4; font-size:11px; border-radius:4px; padding:1px 6px; margin-left:6px; vertical-align:middle; }
+#nsorderPanel .nso-hint{ background:var(--ui-surface-2,#f7fafc); border:1px solid #e5eef3; border-radius:8px; padding:12px 14px; font-size:13px; line-height:1.9; color:#44576b; }
+#nsorderPanel .nso-btnrow{ display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; align-items:center; }
+#nsorderPanel .nso-btnrow .btn{ padding:8px 18px; border:1px solid #d4dce4; background:#fff; border-radius:7px; cursor:pointer; font-size:13px; }
+#nsorderPanel .nso-btnrow .btn:hover{ border-color:var(--ui-brand,#00a0c8); color:var(--ui-brand,#00a0c8); }
+#nsorderPanel .nso-btnrow .btn:disabled{ opacity:.5; cursor:not-allowed; }
+#nsorderPanel .nso-btnrow .nso-btn-primary{ background:var(--ui-brand,#00a0c8); color:#fff; border-color:var(--ui-brand,#00a0c8); }
+#nsorderPanel .nso-btnrow .nso-btn-primary:hover{ color:#fff; filter:brightness(1.06); }
+#nsorderPanel .nso-msg{ font-size:12.5px; }
+#nsorderPanel .nso-msg.ok{ color:#1f7a45; }
+#nsorderPanel .nso-msg.err{ color:#c0392b; }
+#nsorderPanel .nso-preview{ display:none; }
+#nsorderPanel .nso-preview.show{ display:block; }
+#nsorderPanel .nso-meta{ font-size:12.5px; color:var(--ui-text-3,#909399); margin-bottom:8px; line-height:1.8; }
+#nsorderPanel .nso-scroll{ max-height:420px; overflow:auto; border:1px solid #e5eef3; border-radius:6px; }
+#nsorderPanel .nso-table{ width:100%; border-collapse:collapse; font-size:12px; }
+#nsorderPanel .nso-table th,#nsorderPanel .nso-table td{ border:1px solid #ebeef5; padding:5px 8px; text-align:left; white-space:nowrap; }
+#nsorderPanel .nso-table thead th{ background:var(--accent-deep,#0a7ea4); color:#fff; position:sticky; top:0; z-index:1; text-align:center; font-weight:600; }
+#nsorderPanel .nso-table tbody tr:hover{ background:#f0f9fc; }
+</style>
+
+<div class="tool-panel" id="nsorderPanel">
+  <div class="container">
+    <div class="module-card">
+      <h2 class="module-title">月末非标订单库存余额</h2>
+      <div class="module-sub">上传「生产产值表」与「仓库余额月报」，自动提取非标订单 WBS 并匹配期末余额，一键生成库存余额表</div>
+
+      <div class="nso-section">上传文件</div>
+      <div class="nso-grid">
+        <div class="nso-up" id="nsoUpSc">
+          <div class="big">① 生产产值表<span class="nso-badge">必传</span></div>
+          <div class="small" id="nsoScName">点击或拖拽 .xlsx/.xls 到此 — 表头需含「组织编号 / WBS」列</div>
+        </div>
+        <div class="nso-up" id="nsoUpCk">
+          <div class="big">② 仓库余额月报<span class="nso-badge">必传</span></div>
+          <div class="small" id="nsoCkName">点击或拖拽 .xls/.xlsx 到此 — 双层表头（期末余额 = 方向 / 主数量）</div>
+        </div>
+      </div>
+      <input type="file" id="nsoFileSc" style="display:none" accept=".xlsx,.xls">
+      <input type="file" id="nsoFileCk" style="display:none" accept=".xlsx,.xls">
+
+      <div class="nso-section">处理规则</div>
+      <div class="nso-hint">
+        1. 从生产产值表中提取 <b>组织编号 = 7760_IM_07</b> 且 <b>WBS 非空</b> 的行，WBS 编号去重；<br>
+        2. 用这些 WBS 编号到仓库余额月报中匹配「WBS编号」列，仅保留 <b>期末余额主数量 &gt; 0</b> 的记录；<br>
+        3. 输出列与仓库余额月报完全一致（会计年度 / 会计期间 / 物料编号 / 物料名称 / 规格型号 / 期末余额-方向 / 主数量 / 主计量单位 / WBS编号 / 项目WBS）。
+      </div>
+
+      <div class="nso-btnrow">
+        <button class="btn nso-btn-primary" id="nsoBtnRun" disabled>生成库存余额表</button>
+        <button class="btn" id="nsoBtnExport" disabled>导出 Excel</button>
+        <button class="btn" id="nsoBtnReset">重置</button>
+        <span class="nso-msg" id="nsoMsg"></span>
+      </div>
+
+      <div class="nso-preview" id="nsoPreview">
+        <div class="nso-section">处理结果预览</div>
+        <div class="nso-meta" id="nsoMeta"></div>
+        <div class="nso-scroll"><table class="nso-table" id="nsoTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var ORG = '7760_IM_07';
+  function $(id){ return document.getElementById(id); }
+  var dataSc = null, dataCk = null, result = null;
+
+  function msg(t, ok){ var el = $('nsoMsg'); el.textContent = t || ''; el.className = 'nso-msg' + (t ? (ok ? ' ok' : ' err') : ''); }
+  function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function normWs(v){ return String(v == null ? '' : v).replace(/\s/g, ''); }
+  function normInt(v){ if (v === '' || v == null) return ''; var n = Number(v); return isFinite(n) ? String(Math.round(n)) : String(v); }
+  function normCode(v){ if (v === '' || v == null) return ''; var n = Number(v); return (isFinite(n) && Math.abs(n) < 1e15 && Math.round(n) === n) ? String(Math.round(n)) : String(v).trim(); }
+
+  function readBook(file, cb){
+    var fr = new FileReader();
+    fr.onload = function(e){
+      try {
+        var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        var aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
+        cb(file.name, aoa);
+      } catch(ex){ msg('解析失败：' + (ex && ex.message || ex), false); }
+    };
+    fr.onerror = function(){ msg('文件读取失败', false); };
+    fr.readAsArrayBuffer(file);
+  }
+
+  function bindUpload(upId, inputId, nameId, cb){
+    var up = $(upId), inp = $(inputId);
+    up.addEventListener('click', function(){ inp.click(); });
+    inp.addEventListener('change', function(){
+      if (inp.files && inp.files[0]) readBook(inp.files[0], function(n, aoa){ cb(n, aoa); });
+      inp.value = '';
+    });
+    up.addEventListener('dragover', function(e){ e.preventDefault(); up.classList.add('drag'); });
+    up.addEventListener('dragleave', function(){ up.classList.remove('drag'); });
+    up.addEventListener('drop', function(e){
+      e.preventDefault(); up.classList.remove('drag');
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) readBook(f, cb);
+    });
+  }
+
+  /* ① 生产产值表：提取 组织编号=ORG 且 WBS 非空 的去重 WBS 列表 */
+  function extractWbs(aoa){
+    var hr = -1;
+    for (var r = 0; r < Math.min(5, aoa.length); r++) {
+      var row = (aoa[r] || []).map(function(c){ return String(c == null ? '' : c).trim(); });
+      if (row.indexOf('组织编号') >= 0 && row.indexOf('WBS') >= 0) { hr = r; break; }
+    }
+    if (hr < 0) return { error: '生产产值表前5行未找到表头（需包含「组织编号」和「WBS」列）' };
+    var h = (aoa[hr] || []).map(function(c){ return String(c == null ? '' : c).trim(); });
+    var orgI = h.indexOf('组织编号'), wbsI = h.indexOf('WBS');
+    var seen = {}, list = [], totalRows = 0, orgRows = 0, wbsRows = 0;
+    for (var i = hr + 1; i < aoa.length; i++) {
+      var rr = aoa[i] || [];
+      var org = String(rr[orgI] == null ? '' : rr[orgI]).trim();
+      if (org === '' && normWs(rr[wbsI]) === '') continue;
+      totalRows++;
+      if (org !== ORG) continue;
+      orgRows++;
+      var wbs = normWs(rr[wbsI]);
+      if (!wbs) continue;
+      wbsRows++;
+      if (!seen[wbs]) { seen[wbs] = 1; list.push(wbs); }
+    }
+    return { wbsList: list, totalRows: totalRows, orgRows: orgRows, wbsRows: wbsRows };
+  }
+
+  /* ② 仓库余额月报：按 WBS 集合 + 期末余额主数量>0 过滤，输出与原表同列 */
+  function filterCk(aoa, wbsSet){
+    var hr = -1;
+    for (var r = 0; r < Math.min(8, aoa.length); r++) {
+      var row = (aoa[r] || []).map(function(c){ return String(c == null ? '' : c).trim(); });
+      if (row.indexOf('WBS编号') >= 0) { hr = r; break; }
+    }
+    if (hr < 0) return { error: '仓库余额月报前8行未找到表头（需包含「WBS编号」列）' };
+    var h1 = (aoa[hr] || []).map(function(c){ return String(c == null ? '' : c).trim(); });
+    var h2 = (aoa[hr + 1] || []).map(function(c){ return String(c == null ? '' : c).trim(); });
+    function i1(n){ return h1.indexOf(n); }
+    var NAMES = { year:'会计年度', period:'会计期间', code:'物料编号', name:'物料名称', spec:'规格型号', unit:'主计量单位', wbs:'WBS编号', proj:'项目WBS' };
+    var map = { year: i1(NAMES.year), period: i1(NAMES.period), code: i1(NAMES.code), name: i1(NAMES.name), spec: i1(NAMES.spec), unit: i1(NAMES.unit), wbs: i1(NAMES.wbs), proj: i1(NAMES.proj) };
+    var dirI = h2.indexOf('方向'), qtyI = h2.indexOf('主数量');
+    if (dirI < 0) dirI = i1('方向');
+    if (qtyI < 0) qtyI = i1('主数量');
+    var missing = [];
+    for (var k in NAMES) if (map[k] < 0) missing.push(NAMES[k]);
+    if (dirI < 0) missing.push('期末余额-方向');
+    if (qtyI < 0) missing.push('期末余额-主数量');
+    if (missing.length) return { error: '仓库余额月报表头缺少列：' + missing.join('、') };
+
+    var nCol = Math.max.apply(null, [map.year, map.period, map.code, map.name, map.spec, dirI, qtyI, map.unit, map.wbs, map.proj]) + 1;
+    var out = [], total = 0, matched = 0, hitWbs = {};
+    for (var i = hr + 2; i < aoa.length; i++) {
+      var rr = aoa[i] || [];
+      var empty = true;
+      for (var c = 0; c < nCol; c++) { var v = rr[c]; if (v !== '' && v != null) { empty = false; break; } }
+      if (empty) continue;
+      total++;
+      var wbs = normWs(rr[map.wbs]);
+      if (!wbs || !wbsSet[wbs]) continue;
+      var qty = Number(rr[qtyI]);
+      if (!(qty > 0)) continue;
+      matched++;
+      hitWbs[wbs] = 1;
+      out.push([ normInt(rr[map.year]), normInt(rr[map.period]), normCode(rr[map.code]), rr[map.name], rr[map.spec], rr[dirI], qty, rr[map.unit], wbs, rr[map.proj] ]);
+    }
+    return { rows: out, total: total, matched: matched, hitWbs: hitWbs, hitCount: Object.keys(hitWbs).length };
+  }
+
+  function runAoas(scAoa, ckAoa){
+    var ex = extractWbs(scAoa);
+    if (ex.error) return { error: ex.error };
+    if (!ex.wbsList.length) return { error: '生产产值表中未找到 组织编号=' + ORG + ' 且 WBS 非空 的数据', stats: { wbsCount: 0 } };
+    var set = {};
+    ex.wbsList.forEach(function(w){ set[w] = 1; });
+    var fr = filterCk(ckAoa, set);
+    if (fr.error) return { error: fr.error };
+    var noMatch = ex.wbsList.filter(function(w){ return !fr.hitWbs[w]; });
+    var header1 = ['会计年度','会计期间','物料编号','物料名称','规格型号','期末余额','','主计量单位','WBS编号','项目WBS'];
+    var header2 = ['','','','','','方向','主数量','','',''];
+    var aoa = [header1, header2].concat(fr.rows);
+    return {
+      aoa: aoa,
+      stats: {
+        scTotal: ex.totalRows, orgRows: ex.orgRows, wbsCount: ex.wbsList.length,
+        ckTotal: fr.total, matched: fr.matched, hitCount: fr.hitCount, noMatch: noMatch.length
+      }
+    };
+  }
+
+  function render(){
+    var prev = $('nsoPreview'), tbl = $('nsoTable'), meta = $('nsoMeta');
+    if (!result) { prev.classList.remove('show'); tbl.innerHTML = ''; meta.textContent = ''; return; }
+    var MAXP = 300;
+    var rows = result.aoa.slice(2);
+    var h = '<thead><tr><th>会计年度</th><th>会计期间</th><th>物料编号</th><th>物料名称</th><th>规格型号</th><th colspan="2">期末余额</th><th>主计量单位</th><th>WBS编号</th><th>项目WBS</th></tr>'
+          + '<tr><th></th><th></th><th></th><th></th><th></th><th>方向</th><th>主数量</th><th></th><th></th><th></th></tr></thead><tbody>';
+    var n = Math.min(MAXP, rows.length);
+    for (var i = 0; i < n; i++) {
+      h += '<tr>';
+      for (var j = 0; j < rows[i].length; j++) h += '<td>' + esc(rows[i][j]) + '</td>';
+      h += '</tr>';
+    }
+    h += '</tbody>';
+    tbl.innerHTML = h;
+    var st = result.stats;
+    meta.textContent = '生产产值表：数据行 ' + st.scTotal + '，组织 ' + ORG + ' 行 ' + st.orgRows + '，去重 WBS ' + st.wbsCount + ' 个'
+      + ' ｜ 仓库余额月报：数据行 ' + st.ckTotal + '，匹配 ' + st.matched + ' 行（涉及 WBS ' + st.hitCount + ' 个，未匹配 WBS ' + st.noMatch + ' 个）'
+      + ' ｜ 预览前 ' + n + ' 行，导出为全量 ' + rows.length + ' 行';
+    prev.classList.add('show');
+  }
+
+  bindUpload('nsoUpSc', 'nsoFileSc', 'nsoScName', function(name, aoa){
+    dataSc = { name: name, aoa: aoa };
+    $('nsoUpSc').classList.add('loaded');
+    $('nsoScName').textContent = name + '（' + Math.max(0, aoa.length - 1) + ' 行）';
+    refresh();
+  });
+  bindUpload('nsoUpCk', 'nsoFileCk', 'nsoCkName', function(name, aoa){
+    dataCk = { name: name, aoa: aoa };
+    $('nsoUpCk').classList.add('loaded');
+    $('nsoCkName').textContent = name + '（' + Math.max(0, aoa.length - 1) + ' 行）';
+    refresh();
+  });
+  function refresh(){ $('nsoBtnRun').disabled = !(dataSc && dataCk); }
+
+  $('nsoBtnRun').addEventListener('click', function(){
+    if (!dataSc || !dataCk) { msg('请先上传两张表', false); return; }
+    msg('处理中…');
+    setTimeout(function(){
+      try {
+        var r = runAoas(dataSc.aoa, dataCk.aoa);
+        if (r.error) { result = null; render(); msg(r.error, false); $('nsoBtnExport').disabled = true; return; }
+        result = r;
+        render();
+        if (!r.stats.matched) { msg('处理完成，但没有匹配到 期末余额主数量>0 的记录', false); }
+        else { msg('处理完成，共 ' + r.stats.matched + ' 行', true); }
+        $('nsoBtnExport').disabled = !r.stats.matched;
+      } catch(ex){ msg('处理异常：' + (ex && ex.message || ex), false); }
+    }, 30);
+  });
+
+  $('nsoBtnExport').addEventListener('click', function(){
+    if (!result || !result.stats.matched) { msg('没有可导出的数据', false); return; }
+    try {
+      var ws = XLSX.utils.aoa_to_sheet(result.aoa);
+      ws['!merges'] = [{ s: { r: 0, c: 5 }, e: { r: 0, c: 6 } }];
+      ws['!cols'] = [{ wch: 9 }, { wch: 9 }, { wch: 14 }, { wch: 20 }, { wch: 42 }, { wch: 7 }, { wch: 11 }, { wch: 10 }, { wch: 26 }, { wch: 30 }];
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '库存余额');
+      var d = new Date(), ymd = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+      var buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      var blob = new Blob([buf], { type: 'application/octet-stream' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '月末非标订单库存余额_' + ymd + '.xlsx';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); if (a.parentNode) a.parentNode.removeChild(a); }, 0);
+      msg('已导出：' + a.download, true);
+    } catch(ex){ msg('导出失败：' + (ex && ex.message || ex), false); }
+  });
+
+  $('nsoBtnReset').addEventListener('click', function(){
+    dataSc = dataCk = result = null;
+    ['nsoUpSc', 'nsoUpCk'].forEach(function(id){ $(id).classList.remove('loaded'); });
+    $('nsoScName').textContent = '点击或拖拽 .xlsx/.xls 到此 — 表头需含「组织编号 / WBS」列';
+    $('nsoCkName').textContent = '点击或拖拽 .xls/.xlsx 到此 — 双层表头（期末余额 = 方向 / 主数量）';
+    $('nsoBtnRun').disabled = true; $('nsoBtnExport').disabled = true;
+    render(); msg('');
+  });
+
+  /* 自测钩子（内测用，不影响页面） */
+  window.__nsoSelfTest = { extractWbs: extractWbs, filterCk: filterCk, runAoas: runAoas, ORG: ORG };
+})();
+</script>
+
 <div id="usersPanel" class="tool-panel">
   <div class="container">
     <div class="module-card">
@@ -6283,7 +6581,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
 (function(){
   var SB_URL = 'https://lmjtjzwzkpzgryqrfyki.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtanRqend6a3B6Z3J5cXJmeWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNTg4NTMsImV4cCI6MjEwNDczNDg1M30.BcEwPLRwMxrTF0pyqdPrpsvFvSqDAwgFbLte7Qce5FQ';
-  var PAGE_LABELS = { assembly:'装配作业指导书', bom:'BOM 数量差异对比', wiring:'配线表工时核算', finished:'完工未领料明细', wms:'WMS库存汇总', history:'操作记录', users:'用户管理', roles:'角色管理', bomcheck:'GS-工艺BOM核对' };
+  var PAGE_LABELS = { assembly:'装配作业指导书', bom:'BOM 数量差异对比', wiring:'配线表工时核算', finished:'完工未领料明细', wms:'WMS库存汇总', history:'操作记录', users:'用户管理', roles:'角色管理', bomcheck:'GS-工艺BOM核对', nsorder:'月末非标订单库存余额' };
   var session = null;
   var editingUser = null, editingRoleId = null, allRoles = [];
   function rpc(fn, params){
