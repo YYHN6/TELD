@@ -5939,17 +5939,50 @@ window.addEventListener('DOMContentLoaded', ()=>{
 (function(){
   'use strict';
   var ORG = '7760_IM_07';
+
+  // 产值表需带出、追加到月报末位的列：
+  //   out   = 输出表头名
+  //   field = prodMap 字段名
+  //   find  = 在产值表中按"包含匹配"定位列（顺序即优先级）
+  //   dedup = 若月报已有同名列(包含匹配)则不再追加，避免重复列
+  //   excl  = 定位时排除的词（解决"产线编号"排在"产线名称"前被误命中的问题）
+  var EXTRA = [
+    { out:'产订单号', field:'orderNo',  find:['产订单号','订单号'],            dedup:['订单号'],     excl:[] },
+    { out:'物料编号', field:'matCode',  find:['物料编号','物料编码'],          dedup:['物料编号','物料编码'], excl:[] },
+    { out:'规格型号', field:'spec',     find:['规格型号'],                      dedup:['规格型号'],   excl:[] },
+    { out:'产线名称', field:'lineName', find:['产线名称','生产线名称','产线'], dedup:['产线'],       excl:['编号','编码'] }
+  ];
+
   function $(id){ return document.getElementById(id); }
   var dataSc = null, dataCk = null, result = null;
 
   function msg(t, ok){ var el = $('nsoMsg'); el.textContent = t || ''; el.className = 'nso-msg' + (t ? (ok ? ' ok' : ' err') : ''); }
   function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function normWs(v){ return String(v == null ? '' : v).replace(/\s/g, ''); }
+  function normMat(v){ var s = String(v == null ? '' : v).trim(); return s.replace(/\.0+$/, ''); }
   function trimCell(v){ return String(v == null ? '' : v).trim(); }
 
-  // 列定位：在单条表头行里按"包含匹配"找列
+  // 列定位：单条表头行按"包含匹配"找列（第一个命中即返回）
   function colIn(arr){
     for (var i=0;i<arr.length;i++){ for (var j=1;j<arguments.length;j++){ if (arr[i].indexOf(arguments[j])>=0) return i; } }
+    return -1;
+  }
+  // 进阶定位：先找不含 excl 词的命中列；若没有再放宽到含 excl 词（避免"产线编号"误命"产线名称"）
+  function findColExcl(arr, finds, excl){
+    excl = excl || [];
+    var i, j, k, bad;
+    for (i=0;i<arr.length;i++){
+      for (j=0;j<finds.length;j++){
+        if (arr[i].indexOf(finds[j])>=0){
+          bad=false;
+          for (k=0;k<excl.length;k++){ if (arr[i].indexOf(excl[k])>=0){ bad=true; break; } }
+          if (!bad) return i;
+        }
+      }
+    }
+    if (excl.length){
+      for (i=0;i<arr.length;i++){ for (j=0;j<finds.length;j++){ if (arr[i].indexOf(finds[j])>=0) return i; } }
+    }
     return -1;
   }
   function colWbs(arr){
@@ -5961,6 +5994,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
     var i = colIn(arr, '主数量'); if (i>=0) return i;
     for (var k=0;k<arr.length;k++){ var h=arr[k]; if (h.indexOf('数量')>=0 && h.indexOf('主数量')<0) return k; }
     return -1;
+  }
+  function colMat(arr){
+    var i = colIn(arr, '物料编号'); if (i>=0) return i;
+    return colIn(arr, '物料编码');
   }
 
   function readBook(file, cb){
@@ -5993,7 +6030,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
     });
   }
 
-  /* (1) 生产产值表：提取 组织编号=ORG 且 WBS 非空 的去重 WBS 列表（按列名匹配，不敏感列顺序） */
+  /* (1) 生产产值表：提取 组织编号=ORG 且 WBS 非空 的去重 WBS 列表；
+        同时按「物料编号|WBS编号」构建带出列映射 prodMap。
+        WBS / 组织编号 列存在合并单元格时，按行前向填充（沿用上方最近非空值）。 */
   function extractWbs(aoa){
     var hr = -1;
     for (var r=0; r<Math.min(5, aoa.length); r++){
@@ -6003,25 +6042,45 @@ window.addEventListener('DOMContentLoaded', ()=>{
     if (hr<0) return { error:'生产产值表前5行未找到表头（需包含「组织编号」和「WBS」列）' };
     var h = (aoa[hr]||[]).map(trimCell);
     var orgI = h.indexOf('组织编号'), wbsI = h.indexOf('WBS');
-    var seen={}, list=[], totalRows=0, orgRows=0, wbsRows=0;
+    // 定位各带出列在产值表中的位置
+    var loc={};
+    for (var x=0;x<EXTRA.length;x++){ loc[EXTRA[x].field] = findColExcl(h, EXTRA[x].find, EXTRA[x].excl); }
+    var seen={}, list=[], prodMap={}, totalRows=0, orgRows=0, wbsRows=0;
+    var curOrg='', curWbs='';
     for (var i=hr+1;i<aoa.length;i++){
       var rr=aoa[i]||[];
       var org=trimCell(rr[orgI]);
-      if (org==='' && normWs(rr[wbsI])==='') continue;
+      if (org!=='') curOrg=org;
+      var wbsRaw=normWs(rr[wbsI]);
+      if (wbsRaw!=='') curWbs=wbsRaw;
+      if (curOrg==='' && wbsRaw==='') continue; // 完全空行
       totalRows++;
-      if (org!==ORG) continue;
-      orgRows++;
-      var wbs=normWs(rr[wbsI]);
-      if (!wbs) continue;
+      if (curOrg!==ORG) continue;              // 组织不符（含合并单元格继承判定）
+      if (curWbs==='') continue;               // WBS 始终为空，无法定位
       wbsRows++;
-      if (!seen[wbs]){ seen[wbs]=1; list.push(wbs); }
+      if (!seen[curWbs]){ seen[curWbs]=1; list.push(curWbs); }
+      // 以「物料编号|WBS编号」为唯一键，记录需带出列
+      if (loc.matCode >= 0){
+        var mc = normMat(rr[loc.matCode]);
+        if (mc){
+          var pkey = mc + '|' + curWbs;
+          var rec = prodMap[pkey] || {};
+          rec.orderNo  = loc.orderNo  >= 0 ? rr[loc.orderNo]  : '';
+          rec.matCode  = rr[loc.matCode];
+          rec.spec     = loc.spec     >= 0 ? rr[loc.spec]     : '';
+          rec.lineName = loc.lineName >= 0 ? rr[loc.lineName] : '';
+          prodMap[pkey] = rec;
+        }
+      }
     }
-    return { wbsList:list, totalRows:totalRows, orgRows:orgRows, wbsRows:wbsRows };
+    return { wbsList:list, prodMap:prodMap, totalRows:totalRows, orgRows:orgRows, wbsRows:wbsRows };
   }
 
-  /* (2) 仓库余额月报：动态判定表头行数、按列名定位 WBS编号列与主数量列，
-        输出原样回声输入月报表头 + 仅保留 WBS命中且主数量>0 的数据行（导入什么格式导出什么格式） */
-  function filterCk(aoa, wbsSet){
+  /* (2) 仓库余额月报：动态判定表头行数、按列名定位列；
+        输出原样回声月报表头 + 仅保留 WBS命中且主数量>0 的数据行；
+        追加 产值表 中月报没有的列（去重）；合并单元格 WBS 已在产值表侧前向填充。 */
+  function filterCk(aoa, wbsSet, prodMap){
+    prodMap = prodMap || {};
     var hr=-1;
     for (var r=0;r<Math.min(10, aoa.length);r++){
       if ((aoa[r]||[]).map(trimCell).indexOf('WBS编号')>=0){ hr=r; break; }
@@ -6031,12 +6090,19 @@ window.addEventListener('DOMContentLoaded', ()=>{
     var h2=(hr+1<aoa.length)?(aoa[hr+1]||[]).map(trimCell):[];
     var wbsI = colWbs(h1); if (wbsI<0) wbsI = colWbs(h2);
     if (wbsI<0) return { error:'仓库余额月报未找到「WBS编号」列' };
-    // 数量列：优先首表头，其次次表头（双层表头时主数量在次表头）
+    var matI = colMat(h1); if (matI<0) matI = colMat(h2);
     var qtyI = colQty(h1);
     var headerRows = 1;
     if (qtyI<0){ qtyI = colQty(h2); if (qtyI<0) return { error:'仓库余额月报未找到「主数量/数量」列（含"主数量"或"数量"）' }; headerRows = 2; }
-    // 双层表头：期末余额跨"方向/主数量"的合并（仅当检测到方向列时）
     var dirI = (headerRows===2) ? h2.indexOf('方向') : -1;
+
+    // 计算需要追加的列：EXTRA 中"月报尚无同名列"者
+    var monthHeaders=[];
+    for (var mh=0; mh<headerRows; mh++){ (aoa[hr+mh]||[]).forEach(function(c){ monthHeaders.push(trimCell(c)); }); }
+    var appendCols = EXTRA.filter(function(e){
+      for (var t=0;t<e.dedup.length;t++){ for (var m=0;m<monthHeaders.length;m++){ if (monthHeaders[m].indexOf(e.dedup[t])>=0) return false; } }
+      return true;
+    });
 
     var out=[], total=0, matched=0, hitWbs={};
     for (var i=hr+headerRows;i<aoa.length;i++){
@@ -6050,12 +6116,20 @@ window.addEventListener('DOMContentLoaded', ()=>{
       var qty=Number(rr[qtyI]);
       if (!(qty>0)) continue;
       matched++; hitWbs[wbs]=1;
-      out.push(rr);
+      var mkey = (matI>=0 ? normMat(rr[matI]) : '') + '|' + wbs;
+      var rec = prodMap[mkey] || {};
+      var extraVals = appendCols.map(function(e){ return rec[e.field]!=null ? rec[e.field] : ''; });
+      out.push(rr.concat(extraVals));
     }
     var headers = aoa.slice(hr, hr+headerRows);
+    for (var hi=0; hi<headerRows; hi++){
+      var hr2 = (headers[hi]||[]).slice();
+      for (var nc=0; nc<appendCols.length; nc++){ hr2.push(hi === headerRows-1 ? appendCols[nc].out : ''); }
+      headers[hi] = hr2;
+    }
     var merge = null;
     if (headerRows===2 && dirI>=0 && qtyI>dirI){ merge = { s:{r:0,c:dirI}, e:{r:0,c:qtyI} }; }
-    return { headers:headers, rows:out, total:total, matched:matched, hitWbs:hitWbs, hitCount:Object.keys(hitWbs).length, headerRows:headerRows, merge:merge };
+    return { headers:headers, rows:out, total:total, matched:matched, hitWbs:hitWbs, hitCount:Object.keys(hitWbs).length, headerRows:headerRows, merge:merge, appendCount:appendCols.length };
   }
 
   function runAoas(scAoa, ckAoa){
@@ -6063,7 +6137,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     if (ex.error) return { error: ex.error };
     if (!ex.wbsList.length) return { error:'生产产值表中未找到 组织编号='+ORG+' 且 WBS 非空 的数据', stats:{ wbsCount:0 } };
     var set={}; ex.wbsList.forEach(function(w){ set[w]=1; });
-    var fr = filterCk(ckAoa, set);
+    var fr = filterCk(ckAoa, set, ex.prodMap);
     if (fr.error) return { error: fr.error };
     var noMatch = ex.wbsList.filter(function(w){ return !fr.hitWbs[w]; });
     var aoa = fr.headers.concat(fr.rows);
@@ -6073,7 +6147,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       stats: {
         scTotal: ex.totalRows, orgRows: ex.orgRows, wbsCount: ex.wbsList.length,
         ckTotal: fr.total, matched: fr.matched, hitCount: fr.hitCount, noMatch: noMatch.length,
-        outCols: (fr.headers[0]||[]).length, headerRows: fr.headerRows
+        outCols: (fr.headers[0]||[]).length, headerRows: fr.headerRows, appendCount: fr.appendCount
       }
     };
   }
@@ -6098,7 +6172,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     var st=result.stats;
     meta.textContent = '生产产值表：数据行 '+st.scTotal+'，组织 '+ORG+' 行 '+st.orgRows+'，去重 WBS '+st.wbsCount+' 个'
       + ' ｜ 仓库余额月报：数据行 '+st.ckTotal+'，匹配 '+st.matched+' 行（涉及 WBS '+st.hitCount+' 个，未匹配 WBS '+st.noMatch+' 个）'
-      + ' ｜ 导出列数 '+st.outCols+'（与导入一致），表头 '+st.headerRows+' 行'
+      + ' ｜ 导出列数 '+st.outCols+'（仓库月报原列 + 产值表追加 '+st.appendCount+' 列，已自动去重月报已有列），表头 '+st.headerRows+' 行'
       + ' ｜ 预览前 '+n+' 行，导出全量 '+rows.length+' 行';
     prev.classList.add('show');
   }
@@ -6150,7 +6224,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     render(); msg('');
   });
 
-  window.__nsoSelfTest = { extractWbs: extractWbs, filterCk: filterCk, runAoas: runAoas, ORG: ORG };
+  window.__nsoSelfTest = { extractWbs: extractWbs, filterCk: filterCk, runAoas: runAoas, ORG: ORG, EXTRA: EXTRA };
 })();
 </script>
 
