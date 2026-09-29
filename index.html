@@ -5944,8 +5944,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
   var OUTPUT_COLS = ['WBS','WBS名称','生产订单号','物料编号','规格型号','产线名称',
                      '物料号','物料描述','剩余库存数量','库管员',
                      '是否需要出库','消耗措施','BOM是否搭建','备注'];
-  // 合并单元格时排除的列索引：生产订单号（索引2）单列拆分，不合并
-  var MERGE_EXCLUDE = 2;
+  // 合并单元格时排除的列索引：生产订单号(2)单列拆分；备注(13)每行独立填写 —— 两列均不合并
+  var MERGE_EXCLUDE = [2, 13];
 
   function $(id){ return document.getElementById(id); }
   var dataSc = null, dataCk = null, result = null;
@@ -6126,7 +6126,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       if (K>1){
         var rs = 1 + groupStart;          // 表头占第0行，数据从第1行起
         for (var mc=0; mc<OUTPUT_COLS.length; mc++){
-          if (mc===MERGE_EXCLUDE) continue;
+          if (MERGE_EXCLUDE.indexOf(mc)>=0) continue;
           merges.push({ s:{ r:rs, c:mc }, e:{ r:rs+K-1, c:mc } });
         }
       }
