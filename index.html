@@ -6748,8 +6748,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
       if(rs && rs[0] && isAdminRoleName(rs[0].name)){ var _all=Object.keys(PAGE_LABELS); _all.forEach(function(k){ if(session.permissions.indexOf(k)<0) session.permissions.push(k); }); renderTabs(); }
     }).catch(function(){});
     renderTabs();
-    if(session.permissions.indexOf('roles') >= 0) loadRoles();
-    if(session.permissions.indexOf('users') >= 0) loadUsers();
+    var _needRoles = session.permissions.indexOf('roles') >= 0;
+    var _needUsers = session.permissions.indexOf('users') >= 0;
+    if(_needRoles){ loadRoles().then(function(){ if(_needUsers) loadUsers(); }).catch(function(){ if(_needUsers) loadUsers(); }); }
+    else if(_needUsers){ loadUsers(); }
   }
   function renderTabs(){
     var tabs = document.querySelectorAll('.tool-tab');
@@ -6824,7 +6826,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     }
   }
   function loadRoles(){
-    sbSelect('roles','select=id,name,permissions&order=name').then(function(rows){
+    return sbSelect('roles','select=id,name,permissions&order=name').then(function(rows){
       allRoles = rows || [];
       var visible = normalRoles();
       var tb = document.querySelector('#rTable tbody'); tb.innerHTML = '';
@@ -6894,7 +6896,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     return h;
   }
   function loadUsers(){
-    rpc('list_users', { admin_uname:session.username, admin_pw:session.password }).then(function(rows){
+    return rpc('list_users', { admin_uname:session.username, admin_pw:session.password }).then(function(rows){
       var tb = document.querySelector('#uTable tbody'); tb.innerHTML = '';
       (rows||[]).forEach(function(r){
         var tr = document.createElement('tr');
